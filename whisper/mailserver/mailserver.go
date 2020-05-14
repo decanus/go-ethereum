@@ -133,18 +133,21 @@ func (s *WMailServer) DeliverMail(peer *whisper.Peer, request *whisper.Envelope)
 
 // DeliverResponsiveMail responds with saved messages upon request by the
 // messages' owner.
-func (s *WMailServer) DeliverResponsiveMail(peer *whisper.Peer, request *whisper.Envelope) []*whisper.Envelope {
+func (s *WMailServer) DeliverResponsiveMail(peer *whisper.Peer, request *whisper.Envelope) {
 	if peer == nil {
 		log.Error("Whisper peer is nil")
-		return nil
+		return
 	}
 
 	ok, lower, upper, bloom := s.validateRequest(peer.ID(), request)
 	if !ok {
-		return nil
+		return
 	}
 
-	return s.processRequest(nil, lower, upper, bloom)
+	err := s.w.SendEnvelopes(peer, s.processRequest(nil, lower, upper, bloom))
+	if err != nil {
+		log.Error(fmt.Sprintf("Failed to send direct message to peer: %s", err))
+	}
 }
 
 func (s *WMailServer) processRequest(peer *whisper.Peer, lower, upper uint32, bloom []byte) []*whisper.Envelope {

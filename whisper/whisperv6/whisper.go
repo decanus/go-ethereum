@@ -400,6 +400,10 @@ func (whisper *Whisper) SendP2PDirect(peer *Peer, envelope *Envelope) error {
 	return p2p.Send(peer.ws, p2pMessageCode, envelope)
 }
 
+func (whisper *Whisper) SendEnvelopes(peer *Peer, envelopes []*Envelope) error {
+	return p2p.Send(peer.ws, messagesCode, envelopes)
+}
+
 // NewKeyPair generates a new cryptographic identity for the client, and injects
 // it into the known identities for message decryption. Returns ID of the new key pair.
 func (whisper *Whisper) NewKeyPair() (string, error) {
@@ -775,9 +779,8 @@ func (whisper *Whisper) runMessageLoop(p *Peer, rw p2p.MsgReadWriter) error {
 					log.Warn("failed to decode p2p request message, peer will be disconnected", "peer", p.peer.ID(), "err", err)
 					return errors.New("invalid p2p request")
 				}
-				r := whisper.mailServer.DeliverResponsiveMail(p, &request)
 
-				p2p.Send(p.ws, messagesCode, r)
+				whisper.mailServer.DeliverResponsiveMail(p, &request)
 			}
 		default:
 			// New message types might be implemented in the future versions of Whisper.

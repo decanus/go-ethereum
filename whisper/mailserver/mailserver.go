@@ -131,7 +131,7 @@ func (s *WMailServer) DeliverMail(peer *whisper.Peer, request *whisper.Envelope)
 }
 
 
-// DeliverMail responds with saved messages upon request by the
+// DeliverResponsiveMail responds with saved messages upon request by the
 // messages' owner.
 func (s *WMailServer) DeliverResponsiveMail(peer *whisper.Peer, request *whisper.Envelope) []*whisper.Envelope {
 	if peer == nil {
